@@ -19,7 +19,16 @@
 (rf/reg-event-fx
   :app/initialize
   (fn [_ _]
-    {:db {:messages/loading? true}}))
+    {:db       {:messages/loading? true}
+     :dispatch [:messages/load]}))
+
+(rf/reg-event-fx
+  :messages/load
+  (fn [{:keys [db]} _]
+    (GET "/api/messages"
+         {:headers {"Accept" "application/transit+json"}
+          :handler #(rf/dispatch [:messages/set (:messages %)])})
+    {:db (assoc db :messages/loading? true)}))
 
 (rf/reg-sub
   :messages/loading?
@@ -119,13 +128,13 @@
     {:db (dissoc db :form/server-errors)}))
 
 
+
 (defn get-messages []
   (GET "/api/messages"
        {:headers {"Accept" "application/transit+json"}
         :handler #(rf/dispatch [:messages/set (:messages %)])}))
 
 (defn message-list [messages]
-  (println messages)
   [:ul.messages
    (for [{:keys [timestamp message name]} @messages]
      ^{:key timestamp}
@@ -166,6 +175,14 @@
      :on-click #(rf/dispatch [:message/send! @(rf/subscribe [:form/fields])])
      :value    "comment"}]])
 
+(defn reload-messages-button []
+  (let [loading? (rf/subscribe [:messages/loading?])]
+    [:button.button.is-info.is-fullwidth
+     {:on-click #(rf/dispatch [:messages/load])
+      :disabled @loading?}
+     (if @loading?
+       "Loading Messages"
+       "Refresh Messages")]))
 
 (defn home []
   (let [messages (rf/subscribe [:messages/list])]
@@ -177,6 +194,8 @@
           [:div.columns>div.column
            [:h3 "Messages"]
            [message-list messages]]
+          [:div.columns>div.column
+           [reload-messages-button]]
           [:div.columns>div.column
            [message-form]]])])))
 
@@ -192,5 +211,4 @@
 (defn init! []
   (.log js/console "Initializing App")
   (rf/dispatch [:app/initialize])
-  (get-messages)
   (mount-components))
