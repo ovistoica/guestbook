@@ -8,5 +8,6 @@
 -->
 {% extends "base.html" %}
 {% block content %}
+<input id="token" type="hidden" value="{{csrf-token}}"/>
   <img src="/img/warning_clojure.png"></img>
 {% endblock %}

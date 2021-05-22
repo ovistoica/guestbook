@@ -6,25 +6,19 @@
 ; We make no guarantees that this code is fit for any purpose.
 ; Visit http://www.pragmaticprogrammer.com/titles/dswdcloj3 for more book information.
 ;---
-;
 (ns guestbook.routes.home
   (:require
-    [guestbook.layout :as layout]
-    [guestbook.db.core :as db]
-    [clojure.java.io :as io]
-    [guestbook.middleware :as middleware]
-    [ring.util.response]
-    [ring.util.http-response :as response]
-    [guestbook.messages :as msg]))
+   [guestbook.layout :as layout]
+   [guestbook.middleware :as middleware]))
 
 (defn home-page [request]
   (layout/render
-    request
-    "home.html"))
+   request
+   "home.html"))
 
 (defn about-page [request]
   (layout/render
-    request "about.html"))
+   request "about.html"))
 
 (defn home-routes []
   [""

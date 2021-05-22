@@ -73,6 +73,10 @@
     <orderEntry type="library" name="Leiningen: com.layerware/hugsql-adapter:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.layerware/hugsql-core:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.layerware/hugsql:0.5.1" level="project" />
+    <orderEntry type="library" name="Leiningen: com.taoensso/encore:3.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.taoensso/sente:1.16.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.taoensso/timbre:4.10.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.taoensso/truss:1.6.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.wsscode/pathom:2.2.31" level="project" />
     <orderEntry type="library" name="Leiningen: com.wsscode/spec-inspec:1.0.0-alpha2" level="project" />
     <orderEntry type="library" name="Leiningen: com.yahoo.platform.yui/yuicompressor:2.4.8" level="project" />
@@ -96,6 +100,7 @@
     <orderEntry type="library" name="Leiningen: hiccup:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: hikari-cp:2.13.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.5.0" level="project" />
+    <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.33" level="project" />
     <orderEntry type="library" name="Leiningen: io.github.classgraph/classgraph:4.8.64" level="project" />
     <orderEntry type="library" name="Leiningen: io.undertow/undertow-core:2.1.3.Final" level="project" />
     <orderEntry type="library" name="Leiningen: javax.activation/javax.activation-api:1.2.0" level="project" />
@@ -178,6 +183,7 @@
     <orderEntry type="library" name="Leiningen: org.graalvm.regex/regex:20.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.graalvm.sdk/graal-sdk:20.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.graalvm.truffle/truffle-api:20.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.java-websocket/Java-WebSocket:1.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.javassist/javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Leiningen: org.jboss.logging/jboss-logging:3.4.1.Final" level="project" />
     <orderEntry type="library" name="Leiningen: org.jboss.threads/jboss-threads:3.1.0.Final" level="project" />
