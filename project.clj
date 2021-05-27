@@ -47,6 +47,7 @@
                  [org.clojure/google-closure-library "0.0-20191016-6ae1f72f" :scope "provided"]
                  [thheller/shadow-cljs "2.11.14" :scope "provided"]
                  [selmer "1.12.31"]
+                 [buddy "2.0.0"]
                  [com.taoensso/sente "1.16.0"]
                  [org.postgresql/postgresql "42.2.18"]
                  [day8.re-frame/re-frame-10x "1.0.2"]]

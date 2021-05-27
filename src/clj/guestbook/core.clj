@@ -26,6 +26,7 @@
                   :exception ex
                   :where (str "Uncaught exception on" (.getName thread))}))))
 
+
 (def cli-options
   [["-p" "--port PORT" "Port number"
     :parse-fn #(Integer/parseInt %)]])
@@ -86,4 +87,4 @@
       (System/exit 0))
     :else
     (start-app args)))
-  
+

@@ -16,8 +16,11 @@
    [mount.core :as mount]
    [guestbook.core :refer [start-app]]
    [guestbook.db.core]
+   [guestbook.auth :as auth]
    [conman.core :as conman]
    [luminus-migrations.core :as migrations]))
+
+
 
 (alter-var-root #'s/*explain-out* (constantly expound/printer))
 
@@ -71,3 +74,10 @@
   (migrations/create name (select-keys env [:database-url])))
 
 
+
+(comment
+
+  (auth/create-user! "testuser" "testpass")
+  (auth/authenticate-user "testurer" "testpass")
+
+  )

@@ -15,7 +15,7 @@
     [guestbook.middleware.formats :as formats]
     [muuntaja.middleware :refer [wrap-format wrap-params]]
     [guestbook.config :refer [env]]
-    [ring-ttl-session.core :refer [ttl-memory-store]]
+    [guestbook.session :as session]
     [ring.middleware.defaults :refer [site-defaults wrap-defaults]]))
 
 ;
@@ -52,5 +52,5 @@
       (wrap-defaults
         (-> site-defaults
             (assoc-in [:security :anti-forgery] false)
-            (assoc-in  [:session :store] (ttl-memory-store (* 60 30)))))
+            (assoc-in  [:session :store] session/store)))
       wrap-internal-error))
