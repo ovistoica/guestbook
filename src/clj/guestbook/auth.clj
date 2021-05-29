@@ -28,13 +28,15 @@
       (dissoc user :password))))
 
 (def roles
-  {:message/create!  #{:authenticated}
-   :auth/login       #{:any}
-   :auth/logout      #{:any}
-   :account/register #{:any}
-   :session/get      #{:any}
-   :messages/list    #{:any}
-   :swagger/swagger  #{:any}})
+  {:message/create!      #{:authenticated}
+   :author/get           #{:any}
+   :account/set-profile! #{:authenticated}
+   :auth/login           #{:any}
+   :auth/logout          #{:any}
+   :account/register     #{:any}
+   :session/get          #{:any}
+   :messages/list        #{:any}
+   :swagger/swagger      #{:any}})
 
 (defn identity->roles [identity]
   (cond-> #{:any}

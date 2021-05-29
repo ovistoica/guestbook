@@ -59,7 +59,7 @@
     <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-databind:2.11.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.dataformat/jackson-dataformat-cbor:2.10.2" level="project" />
     <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.dataformat/jackson-dataformat-smile:2.10.2" level="project" />
-    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.datatype/jackson-datatype-jsr310:2.11.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.datatype/jackson-datatype-jsr310:2.12.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.code.findbugs/jsr305:3.0.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.code.gson/gson:2.7" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.elemental2/elemental2-core:1.0.0-RC1" level="project" />
@@ -123,7 +123,7 @@
     <orderEntry type="library" name="Leiningen: luminus/ring-ttl-session:0.3.3" level="project" />
     <orderEntry type="library" name="Leiningen: markdown-clj:1.10.5" level="project" />
     <orderEntry type="library" name="Leiningen: meta-merge:1.0.0" level="project" />
-    <orderEntry type="library" name="Leiningen: metosin/jsonista:0.2.6" level="project" />
+    <orderEntry type="library" name="Leiningen: metosin/jsonista:0.3.3" level="project" />
     <orderEntry type="library" name="Leiningen: metosin/malli:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: metosin/muuntaja:0.6.7" level="project" />
     <orderEntry type="library" name="Leiningen: metosin/reitit-core:0.5.10" level="project" />

@@ -1,8 +1,8 @@
 -- :name save-message! :<! :1
 -- :doc creates a new message using the name message and author keys
 INSERT INTO posts
-(name, message)
-VALUES (:author, :name, :message)
+(name, message, author)
+VALUES (:name, :message, :author)
 RETURNING *;
 
 -- :name get-messages :? :*
@@ -24,3 +24,14 @@ WHERE login = :login;
 -- :doc selects all messages posted by a user SELECT * from posts
 SELECT * FROM posts
 WHERE author = :author;
+
+-- :name set-profile-for-user* :<! :1
+-- :doc sets a profile map for the specified user
+UPDATE users
+SET profile = :profile
+WHERE :login = login
+RETURNING *;
+
+-- :name get-user* :? :1
+SELECT login, created_at, profile from users
+WHERE login = :login

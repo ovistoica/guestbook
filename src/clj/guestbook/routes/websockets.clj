@@ -50,6 +50,7 @@
                    (catch Exception e
                      (let [{id     :guestbook/error-id
                             errors :errors} (ex-data e)]
+                       (log/debug errors e)
                        (case id
                          :validation
                          {:errors errors}
@@ -85,8 +86,8 @@
         (do
           (log/info "Unauthorized message: " id)
           (reply-fn {:message "You are not authorized to perform this action"
-                     :errors  {:unauthorized true}})))
-      )))
+                     :errors  {:unauthorized true}}))))))
+
 
 ;
 (defstate channel-router
