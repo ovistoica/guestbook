@@ -9,23 +9,23 @@
 ;
 (ns guestbook.routes.websockets
   (:require
-    [clojure.tools.logging :as log]
-    [guestbook.messages :as msg]
-    [guestbook.middleware :as middleware]
-    [mount.core :refer [defstate]]
-    [guestbook.session :as session]
-    [taoensso.sente :as sente]
-    [guestbook.auth :as auth]
-    [guestbook.auth.ws :refer [authorized?]]
-    [taoensso.sente.server-adapters.http-kit :refer [get-sch-adapter]]))
+   [clojure.tools.logging :as log]
+   [guestbook.messages :as msg]
+   [guestbook.middleware :as middleware]
+   [mount.core :refer [defstate]]
+   [guestbook.session :as session]
+   [taoensso.sente :as sente]
+   [guestbook.auth :as auth]
+   [guestbook.auth.ws :refer [authorized?]]
+   [taoensso.sente.server-adapters.http-kit :refer [get-sch-adapter]]))
 ;
 
 ;
 (defstate socket
-          :start (sente/make-channel-socket!
-                   (get-sch-adapter)
-                   {:user-id-fn (fn [ring-req]
-                                  (get-in ring-req [:params :client-id]))}))
+  :start (sente/make-channel-socket!
+          (get-sch-adapter)
+          {:user-id-fn (fn [ring-req]
+                         (get-in ring-req [:params :client-id]))}))
 
 (defn send! [uid message]
   (println "Sending message: " message)
@@ -88,14 +88,12 @@
           (reply-fn {:message "You are not authorized to perform this action"
                      :errors  {:unauthorized true}}))))))
 
-
-;
 (defstate channel-router
-          :start (sente/start-chsk-router!
-                   (:ch-recv socket)
-                   #'receive-message!)
-          :stop (when-let [stop-fn channel-router]
-                  (stop-fn)))
+  :start (sente/start-chsk-router!
+          (:ch-recv socket)
+          #'receive-message!)
+  :stop (when-let [stop-fn channel-router]
+          (stop-fn)))
 
 (defn websocket-routes []
   ["/ws"

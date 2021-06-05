@@ -10,14 +10,16 @@
 (ns guestbook.db.core
   (:require
     ;
-    [java-time :refer [java-date]]
-    [next.jdbc.date-time]
-    [next.jdbc.result-set]
-    [conman.core :as conman]
-    [mount.core :refer [defstate]]
-    [guestbook.config :refer [env]]
-    [next.jdbc.prepare]
-    [jsonista.core :as json])
+   [java-time :refer [java-date]]
+   [next.jdbc.date-time]
+   [next.jdbc.result-set]
+   [conman.core :as conman]
+   [mount.core :refer [defstate]]
+   [guestbook.config :refer [env]]
+    ;
+    ;;...
+   [next.jdbc.prepare]
+   [jsonista.core :as json])
   (:import org.postgresql.util.PGobject
            clojure.lang.IPersistentMap
            clojure.lang.IPersistentVector))
@@ -25,8 +27,8 @@
 
 
 (defstate ^:dynamic *db*
-          :start (conman/connect! {:jdbc-url (env :database-url)})
-          :stop (conman/disconnect! *db*))
+  :start (conman/connect! {:jdbc-url (env :database-url)})
+  :stop (conman/disconnect! *db*))
 
 ;
 (conman/bind-connection *db* "sql/queries.sql")
@@ -45,8 +47,8 @@
 ;;...
 (defn read-pg-object [^PGobject obj]
   (cond-> (.getValue obj)
-          (#{"json" "jsonb"} (.getType obj))
-          (json/read-value json/keyword-keys-object-mapper)))
+    (#{"json" "jsonb"} (.getType obj))
+    (json/read-value json/keyword-keys-object-mapper)))
 
 (defn write-pg-object [v]
   (doto (PGobject.)

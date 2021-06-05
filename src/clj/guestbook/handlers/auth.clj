@@ -44,4 +44,4 @@
                           (not-empty
                             (select-keys
                               identity
-                              [:login :created_at]))}}))    ;
+                              [:login :created_at :profile]))}})) ;

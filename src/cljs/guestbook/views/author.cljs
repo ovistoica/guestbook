@@ -8,22 +8,102 @@
 ;---
 (ns guestbook.views.author
   (:require
+    [reagent.core :as r]
     [re-frame.core :as rf]
+    [reitit.frontend.easy :as rtfe]
     [guestbook.messages :as messages]))
+
+;
+(rf/reg-event-fx
+  ::fetch-author
+  (fn [{:keys [db]} [_ login]]
+    {:db       (assoc db
+                       ::author nil
+                       ::loading? true)
+     :ajax/get {:url           (str "/api/author/" login)
+                :success-event [::set-author]}}))
+
+(rf/reg-event-db
+  ::set-author
+  (fn [db [_ author]]
+    (if author
+      (assoc db
+        ::author author
+        ::loading? false)
+      (dissoc db ::author))))
+
+(rf/reg-sub
+  ::author
+  (fn [db _]
+    (get db ::author)))
+
+(rf/reg-sub
+  ::is-current-author?
+  :<- [:auth/user]
+  :<- [::author]
+  (fn [[user author] _]
+    (= (:login user) (:login author))))
+
+(rf/reg-sub
+  ::loading?
+  (fn [db _]
+    (::loading? db)))
 
 ;
 (def author-controllers
   [{:parameters {:path [:user]}
-    :start (fn [{{:keys [user]} :path}]
-             (rf/dispatch [:messages/load-by-author user]))}])
+    :start      (fn [{{:keys [user]} :path}]
+                  (rf/dispatch [:messages/load-by-author user]))}
+   {:parameters {:path [:user]}
+    :start      (fn [{{:keys [user]} :path}]
+                  (rf/dispatch [::fetch-author user]))
+    :stop       (fn [_] (rf/dispatch [::set-author nil]))}])
+;
 
+;; Don't forget to remove (rf/dispatch [:messages/load-by-author user])
+;; from the author view!
+;
+
+;
+(defn banner-component [url]
+  [:figure.image {:style {:width        "100%"
+                          :height       "10vw"
+                          :overflow     "hidden"
+                          :margin-left  0
+                          :margin-right 0}}
+   [:img {:src url}]])
+
+(defn title []
+  (if @(rf/subscribe [::is-current-author?])
+    [:div.level
+     [:h2.level-left "My Author Page"]
+     [:a.level-right {:href (rtfe/href :guestbook.routes.app/profile)}
+      "Edit Page"]]
+    (let [{:keys [display-name login]} @(rf/subscribe [::author])]
+      [:h2 display-name " <@" login ">'s Page"])))
 
 (defn author [{{{:keys [user]} :path} :parameters}]
-  (let [messages (rf/subscribe [:messages/list])]
+  (let [messages (rf/subscribe [:messages/list])
+        author (rf/subscribe [::author])]
     (fn [{{{:keys [user]} :path} :parameters}]
-      [:div.content>div.columns.is-centered>div.column.is-two-thirds
-       [:div.columns>div.column
-        [:h3 "Messages By " user]
-        (if @(rf/subscribe [:messages/loading?])
-          [messages/message-list-placeholder]
-          [messages/message-list messages])]])))
+      (if @(rf/subscribe [::loading?])
+        [:div.content
+         [:div {:style {:width "100%"}}
+          [:progress.progress.is-dark {:max 100} "30%"]]]
+        (let [{{:keys [display-name banner bio]} :profile} @author]
+          [:div.content
+           [banner-component (or banner "/img/banner-default.png")]
+           [title]
+           (when bio
+             [:p bio])
+           [:div.columns.is-centered>div.column.is-two-thirds
+            [:div.columns>div.column
+             [:h3 "Posts by " display-name " <@" user ">"]
+             (if @(rf/subscribe [:messages/loading?])
+               [messages/message-list-placeholder]
+               [messages/message-list messages])]
+            (when @(rf/subscribe [::is-current-author?])
+              [:div.columns>div.column
+               [:h4 "New Post"]
+               [messages/message-form]])]])))))
+;

@@ -8,49 +8,49 @@
 
 
 (rf/reg-event-fx
-  :session/load
-  (fn [{:keys [db]} _]
-    {:db       (assoc db :session/loading? true)
-     :ajax/get {:url           "/api/session"
-                :success-path  [:session]
-                :success-event [:session/set]}}))
+ :session/load
+ (fn [{:keys [db]} _]
+   {:db       (assoc db :session/loading? true)
+    :ajax/get {:url           "/api/session"
+               :success-path  [:session]
+               :success-event [:session/set]}}))
 
 
 (rf/reg-event-db
-  :session/set
-  (fn [db [_ {:keys [identity]}]]
-    (assoc db
-      :auth/user identity
-      :session/loading? false)))
+ :session/set
+ (fn [db [_ {:keys [identity]}]]
+   (assoc db
+          :auth/user identity
+          :session/loading? false)))
 
 (rf/reg-sub
-  :session/loading?
-  (fn [db _]
-    (:session/loading? db)))
+ :session/loading?
+ (fn [db _]
+   (:session/loading? db)))
 (rf/reg-event-db
-  :auth/handle-login
-  (fn [db [_ {:keys [identity]}]]
-    (assoc db :auth/user identity)))
+ :auth/handle-login
+ (fn [db [_ {:keys [identity]}]]
+   (assoc db :auth/user identity)))
 
 (rf/reg-event-db
-  :auth/handle-logout
-  (fn [db _]
-    (dissoc db :auth/user)))
+ :auth/handle-logout
+ (fn [db _]
+   (dissoc db :auth/user)))
 
 (rf/reg-sub
-  :auth/user
-  (fn [db _]
-    (:auth/user db)))
+ :auth/user
+ (fn [db _]
+   (:auth/user db)))
 
 (rf/reg-sub
-  :auth/user-state
-  :<- [:auth/user]
-  :<- [:session/loading?]
-  (fn [[user loading?]]
-    (cond
-      (true? loading?) :loading
-      user :authenticated
-      :else :anonymous)))
+ :auth/user-state
+ :<- [:auth/user]
+ :<- [:session/loading?]
+ (fn [[user loading?]]
+   (cond
+     (true? loading?) :loading
+     user :authenticated
+     :else :anonymous)))
 
 (defn login-button []
   (r/with-let
@@ -58,21 +58,21 @@
      error (r/atom nil)
 
      do-login
-     (fn [_]
+     (fn []
        (reset! error nil)
        (POST "/api/login"
-             {:headers       {"Accept" "application/transit+json"}
-              :params        @fields
-              :handler       (fn [response]
-                               (reset! fields {})
-                               (rf/dispatch [:auth/handle-login response])
-                               (rf/dispatch [:app/hide-modal :user/login]))
-              :error-handler (fn [error-response]
-                               (reset! error
-                                       (or
-                                         (:message (:response error-response))
-                                         (:status-text error-response)
-                                         "Unknown Error")))}))]
+         {:headers       {"Accept" "application/transit+json"}
+          :params        @fields
+          :handler       (fn [response]
+                           (reset! fields {})
+                           (rf/dispatch [:auth/handle-login response])
+                           (rf/dispatch [:app/hide-modal :user/login]))
+          :error-handler (fn [error-response]
+                           (reset! error
+                                   (or
+                                    (:message (:response error-response))
+                                    (:status-text error-response)
+                                    "Unknown Error")))}))]
     [modals/modal-button :user/login
      ;; Title
      "Log In"
@@ -108,8 +108,8 @@
 (defn logout-button []
   [:button.button
    {:on-click #(POST "/api/logout"
-                     {:handler (fn [_]
-                                 (rf/dispatch [:auth/handle-logout]))})}
+                 {:handler (fn [_]
+                             (rf/dispatch [:auth/handle-logout]))})}
    "Log Out"])
 
 (defn nameplate [{:keys [login]}]
@@ -124,21 +124,21 @@
      error (r/atom nil)
 
      do-register
-     (fn [_]
+     (fn []
        (reset! error nil)
        (POST "/api/register"
-             {:headers       {"Accept" "application/transit+json"}
-              :params        @fields
-              :handler       (fn [response]
-                               (reset! fields {})
-                               (rf/dispatch [:app/hide-modal :user/register])
-                               (rf/dispatch [:app/show-modal :user/login]))
-              :error-handler (fn [error-response]
-                               (reset! error
-                                       (or
-                                         (:message (:response error-response))
-                                         (:status-text error-response)
-                                         "Unknown Error")))}))]
+         {:headers       {"Accept" "application/transit+json"}
+          :params        @fields
+          :handler       (fn [response]
+                           (reset! fields {})
+                           (rf/dispatch [:app/hide-modal :user/register])
+                           (rf/dispatch [:app/show-modal :user/login]))
+          :error-handler (fn [error-response]
+                           (reset! error
+                                   (or
+                                    (:message (:response error-response))
+                                    (:status-text error-response)
+                                    "Unknown Error")))}))]
     [modals/modal-button :user/register
      ;; Title
      "Create Account"

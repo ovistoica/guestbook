@@ -1,4 +1,5 @@
 /target
+
 /lib
 /classes
 /checkouts
@@ -29,3 +30,5 @@ profiles.clj
 
 .idea
 
+
+.clj-kondo/.cache

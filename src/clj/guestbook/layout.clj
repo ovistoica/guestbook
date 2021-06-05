@@ -33,13 +33,13 @@
   "renders the HTML template located relative to resources/html"
   [request template & [params]]
   (content-type
-    (ok
-      (parser/render-file
-        template
-        (assoc params
-          :page template
-          :csrf-token *anti-forgery-token*)))
-    "text/html; charset=utf-8"))
+   (ok
+    (parser/render-file
+     template
+     (assoc params
+            :page template
+            :csrf-token *anti-forgery-token*)))
+   "text/html; charset=utf-8"))
 
 ;
 (defn error-page

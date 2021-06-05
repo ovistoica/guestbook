@@ -1,6 +1,6 @@
 (ns guestbook.modals
-  (:require [re-frame.core :as rf]
-            ))
+  (:require [re-frame.core :as rf]))
+
 (rf/reg-event-db
   :app/show-modal
   (fn [db [_ modal-id]]

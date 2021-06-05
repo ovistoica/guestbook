@@ -29,8 +29,8 @@
                 :start
                 (ring/ring-handler
                   (ring/router
-                    [(app-routes)
-                     (service-routes)
+                    [(service-routes)
+                     (app-routes)
                      (websocket-routes)])
                   (ring/routes
                     (ring/create-resource-handler
