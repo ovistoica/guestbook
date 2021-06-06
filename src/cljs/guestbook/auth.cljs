@@ -178,6 +178,3 @@
                      (string/blank? (:password @fields))
                      (string/blank? (:confirm @fields)))}
       "Create Account"]]))
-;
-
-;

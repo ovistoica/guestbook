@@ -27,7 +27,7 @@
     (when (hashers/check password hashed)
       (dissoc user :password))))
 
-;
+
 (defn change-password! [login old-password new-password]
   (jdbc/with-transaction [t-conn db/*db*]
     (let [{hashed :password} (db/get-user-for-auth* t-conn {:login login})]
@@ -38,10 +38,9 @@
           :password (hashers/derive new-password)})
         (throw (ex-info "Old password must match!"
                         {:guestbook/error-id ::authentication-failure
-                         :error "Passwords do not match!"}))))))
-;
+                         :error "Passwords do not match"}))))))
 
-;
+
 (defn delete-account! [login password]
   (jdbc/with-transaction [t-conn db/*db*]
     (let [{hashed :password} (db/get-user-for-auth* t-conn {:login login})]
@@ -49,7 +48,7 @@
         (db/delete-user!* t-conn {:login login})
         (throw (ex-info "Password is incorrect!"
                         {:guestbook/error-id ::authentication-failure
-                         :error "Password is incorrect!"})))))) 
+                         :error "Password is incorrect!"}))))))
 ;
 
 (defn identity->roles [identity]
@@ -70,9 +69,9 @@
    :messages/list #{:any}
    :swagger/swagger #{:any}})
 
-(comment 
-  
-  
+(comment
 
-  (+ 1 1) )
+
+
+  (+ 1 1))
 

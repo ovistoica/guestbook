@@ -8,46 +8,46 @@
 ;---
 (ns guestbook.views.author
   (:require
-    [reagent.core :as r]
-    [re-frame.core :as rf]
-    [reitit.frontend.easy :as rtfe]
-    [guestbook.messages :as messages]))
+   [reagent.core :as r]
+   [re-frame.core :as rf]
+   [reitit.frontend.easy :as rtfe]
+   [guestbook.messages :as messages]))
 
 ;
 (rf/reg-event-fx
-  ::fetch-author
-  (fn [{:keys [db]} [_ login]]
-    {:db       (assoc db
-                       ::author nil
-                       ::loading? true)
-     :ajax/get {:url           (str "/api/author/" login)
-                :success-event [::set-author]}}))
+ ::fetch-author
+ (fn [{:keys [db]} [_ login]]
+   {:db       (assoc db
+                     ::author nil
+                     ::loading? true)
+    :ajax/get {:url           (str "/api/author/" login)
+               :success-event [::set-author]}}))
 
 (rf/reg-event-db
-  ::set-author
-  (fn [db [_ author]]
-    (if author
-      (assoc db
-        ::author author
-        ::loading? false)
-      (dissoc db ::author))))
+ ::set-author
+ (fn [db [_ author]]
+   (if author
+     (assoc db
+            ::author author
+            ::loading? false)
+     (dissoc db ::author))))
 
 (rf/reg-sub
-  ::author
-  (fn [db _]
-    (get db ::author)))
+ ::author
+ (fn [db _]
+   (get db ::author)))
 
 (rf/reg-sub
-  ::is-current-author?
-  :<- [:auth/user]
-  :<- [::author]
-  (fn [[user author] _]
-    (= (:login user) (:login author))))
+ ::is-current-author?
+ :<- [:auth/user]
+ :<- [::author]
+ (fn [[user author] _]
+   (= (:login user) (:login author))))
 
 (rf/reg-sub
-  ::loading?
-  (fn [db _]
-    (::loading? db)))
+ ::loading?
+ (fn [db _]
+   (::loading? db)))
 
 ;
 (def author-controllers

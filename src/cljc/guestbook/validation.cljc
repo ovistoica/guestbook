@@ -3,10 +3,7 @@
    [struct.core :as st]))
 
 (def message-schema
-  [[:name
-    st/required
-    st/string]
-   [:message
+  [[:message
     st/required
     st/string
     {:message "message must contain at least 10 characters"

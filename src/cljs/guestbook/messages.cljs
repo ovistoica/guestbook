@@ -1,145 +1,159 @@
 (ns guestbook.messages
   (:require
-    [clojure.string :as string]
-    [reagent.core :as r]
-    [re-frame.core :as rf]
-    [guestbook.components :refer [text-input textarea-input]]
-    [guestbook.validation :refer [validate-message]]))
+   [clojure.string :as string]
+   [reagent.core :as r]
+   [re-frame.core :as rf]
+   [guestbook.components :refer [text-input textarea-input image]]
+   [guestbook.validation :refer [validate-message]]))
 
 
 (rf/reg-event-db
-  :messages/set
-  (fn [db [_ messages]]
-    (-> db
-        (assoc :messages/loading? false
-               :messages/list messages))))
+ :messages/set
+ (fn [db [_ messages]]
+   (-> db
+       (assoc :messages/loading? false
+              :messages/list messages))))
 
 (rf/reg-sub
-  :messages/loading?
-  (fn [db _]
-    (:messages/loading? db)))
+ :messages/loading?
+ (fn [db _]
+   (:messages/loading? db)))
 
 (rf/reg-sub
-  :messages/list
-  (fn [db _]
-    (:messages/list db [])))
+ :messages/list
+ (fn [db _]
+   (:messages/list db [])))
 
 (defn add-message? [filter-map msg]
   (every?
-    (fn [[k matcher]]
-      (let [v (get msg k)]
-        (cond
-          (set? matcher) (matcher v)
-          (fn? matcher) (matcher v)
-          :else (= matcher v))))
-    filter-map))
+   (fn [[k matcher]]
+     (let [v (get msg k)]
+       (cond
+         (set? matcher) (matcher v)
+         (fn? matcher) (matcher v)
+         :else (= matcher v))))
+   filter-map))
 
 
 (rf/reg-event-db
-  :message/add
-  (fn [db [_ message]]
-    (if (add-message? (:messages/filter db) message)
-      (update db :messages/list conj message)
-      db)))
+ :message/add
+ (fn [db [_ message]]
+   (if (add-message? (:messages/filter db) message)
+     (update db :messages/list conj message)
+     db)))
 
 (rf/reg-event-fx
-  :messages/load
-  (fn [{:keys [db]} _]
-    {:db       (assoc db
-                 :messages/loading? true
-                 :messages/list nil
-                 :messages/filter nil)
-     :ajax/get {:url           "/api/messages"
-                :success-path  [:messages]
-                :success-event [:messages/set]}}))
+ :messages/load
+ (fn [{:keys [db]} _]
+   {:db       (assoc db
+                     :messages/loading? true
+                     :messages/list nil
+                     :messages/filter nil)
+    :ajax/get {:url           "/api/messages"
+               :success-path  [:messages]
+               :success-event [:messages/set]}}))
 
 
 (rf/reg-event-fx
-  :messages/load-by-author
-  (fn [{:keys [db]} [_ author]]
-    {:db       (-> db
-                   (assoc :messages/loading? true
-                          :messages/list nil
-                          :messages/filter {:author author}))
-     :ajax/get {:url           (str "/api/messages/by/" author)
-                :success-path  [:messages]
-                :success-event [:messages/set]}}))
+ :messages/load-by-author
+ (fn [{:keys [db]} [_ author]]
+   {:db       (-> db
+                  (assoc :messages/loading? true
+                         :messages/list nil
+                         :messages/filter {:author author}))
+    :ajax/get {:url           (str "/api/messages/by/" author)
+               :success-path  [:messages]
+               :success-event [:messages/set]}}))
 
 
 (rf/reg-event-db
-  :form/set-field
-  [(rf/path :form/fields)]
-  (fn [fields [_ id value]]
-    (assoc fields id value)))
+ :form/set-field
+ [(rf/path :form/fields)]
+ (fn [fields [_ id value]]
+   (assoc fields id value)))
 
 (rf/reg-event-db
-  :form/clear-fields
-  [(rf/path :form/fields)]
-  (fn [_ _]
-    {}))
+ :form/clear-fields
+ [(rf/path :form/fields)]
+ (fn [_ _]
+   {}))
 
 (rf/reg-sub
-  :form/fields
-  (fn [db _]
-    (:form/fields db)))
+ :form/fields
+ (fn [db _]
+   (:form/fields db)))
 
 (rf/reg-sub
-  :form/field
-  :<- [:form/fields]
-  (fn [fields [_ id]]
-    (get fields id)))
+ :form/field
+ :<- [:form/fields]
+ (fn [fields [_ id]]
+   (get fields id)))
 
 (rf/reg-event-db
-  :form/set-server-errors
-  [(rf/path :form/server-errors)]
-  (fn [_ [_ errors]]
-    errors))
+ :form/set-server-errors
+ [(rf/path :form/server-errors)]
+ (fn [_ [_ errors]]
+   errors))
 
 (rf/reg-sub
-  :form/server-errors
-  (fn [db _]
-    (:form/server-errors db)))
+ :form/server-errors
+ (fn [db _]
+   (:form/server-errors db)))
 
 ;;Validation errors are reactively computed
 (rf/reg-sub
-  :form/validation-errors
-  :<- [:form/fields]
-  (fn [fields _]
-    (validate-message fields)))
+ :form/validation-errors
+ :<- [:form/fields]
+ (fn [fields _]
+   (validate-message fields)))
 
 (rf/reg-sub
-  :form/validation-errors?
-  :<- [:form/validation-errors]
-  (fn [errors _]
-    (not (empty? errors))))
+ :form/validation-errors?
+ :<- [:form/validation-errors]
+ (fn [errors _]
+   (seq errors)))
 
 (rf/reg-sub
-  :form/errors
-  :<- [:form/validation-errors]
-  :<- [:form/server-errors]
-  (fn [[validation server] _]
-    (merge validation server)))
+ :form/errors
+ :<- [:form/validation-errors]
+ :<- [:form/server-errors]
+ (fn [[validation server] _]
+   (merge validation server)))
 
 (rf/reg-sub
-  :form/error
-  :<- [:form/errors]
-  (fn [errors [_ id]]
-    (get errors id)))
+ :form/error
+ :<- [:form/errors]
+ (fn [errors [_ id]]
+   (get errors id)))
 
 (rf/reg-event-fx
-  :message/send!-called-back
-  (fn [_ [_ {:keys [success errors]}]]
-    (if success
-      {:dispatch [:form/clear-fields]}
-      {:dispatch [:form/set-server-errors errors]})))
+ :message/send!-called-back
+ (fn [_ [_ {:keys [success errors]}]]
+   (if success
+     {:dispatch [:form/clear-fields]}
+     {:dispatch [:form/set-server-errors errors]})))
 
 (rf/reg-event-fx
-  :message/send!
-  (fn [{:keys [db]} [_ fields]]
-    {:db       (dissoc db :form/server-errors)
-     :ws/send! {:message        [:message/create! fields]
-                :timeout        10000
-                :callback-event [:message/send!-called-back]}}))
+ :message/send!
+ (fn [{:keys [db]} [_ fields]]
+   {:db       (dissoc db :form/server-errors)
+    :ws/send! {:message        [:message/create! fields]
+               :timeout        10000
+               :callback-event [:message/send!-called-back]}}))
+
+(defn message [{:keys [timestamp message name author avatar]}]
+  [:article.media
+   [:figure.media-left
+    [image (or avatar "/img/avatar-default.png") 123 123]]
+   [:div.media-content>div.content
+    [:time (.toLocaleString timestamp)]
+    [:p message]
+    [:p " - " name
+     " <"
+     (if author
+       [:a {:href (str "/user/" author)} (str "@" author)]
+       [:span.is-italic "account not found"])
+     ">"]]])
 
 (defn errors-component [id & [message]]
   (when-let [error @(rf/subscribe [:form/error id])]
@@ -169,11 +183,9 @@
    [errors-component :server-error]
    [errors-component :unauthorized "Please log in before posting."]
    [:div.field
-    [:label.label {:for :name} "Name"]
-    [errors-component :name]
-    [text-input {:attrs   {:name :name}
-                 :value   (rf/subscribe [:form/field :name])
-                 :on-save #(rf/dispatch [:form/set-field :name %])}]]
+    [:label.label  "Name"]
+    (let [{:keys [login profile]} @(rf/subscribe [:auth/user])]
+      (:display-name profile login))]
 
    [:div.field
     [:label.label {:for :message} "Message"]
@@ -193,15 +205,7 @@
 
 (defn message-list [messages]
   [:ul.messages
-   (for [{:keys [timestamp message name author]} @messages]
-     ^{:key timestamp}
+   (for [m @messages]
+     ^{:key (:timestamp m)}
      [:li
-      [:time (.toLocaleString timestamp)]
-      [:p message]
-      [:p " - " name
-       ;; Add the author (e.g. <@username>)
-       " <"
-       (if author
-         [:a {:href (str "/user/" author)} (str "@" author)]
-         [:span.is-italic "account not found"])
-       ">"]])])
+      [message m]])])

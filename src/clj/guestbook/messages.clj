@@ -8,9 +8,9 @@
 ;---
 (ns guestbook.messages
   (:require
-    [guestbook.db.core :as db]
-    [guestbook.validation :refer [validate-message]]
-    [clojure.tools.logging :as log]))
+   [guestbook.db.core :as db]
+   [guestbook.validation :refer [validate-message]]
+   [clojure.tools.logging :as log]))
 
 
 ;
@@ -19,13 +19,15 @@
 ;
 
 ;
-(defn save-message! [{:keys [login]} message]
+(defn save-message! [{{:keys [display-name]} :profile
+                      :keys [login]}
+                     message]
   (log/debug message login)
   (if-let [errors (validate-message message)]
     (throw (ex-info "Message is invalid"
                     {:guestbook/error-id :validation
                      :errors             errors}))
-    (db/save-message! (assoc message :author login))))
+    (db/save-message! (assoc message :author login :name (or display-name login)))))
 ;
 
 (defn messages-by-author [author]

@@ -31,7 +31,6 @@
   (fn [_ _]
     {:db       {:session/loading? true}
      :dispatch [:session/load]}))
-;
 
 (def router
   (rtf/router

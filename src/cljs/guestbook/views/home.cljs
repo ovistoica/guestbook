@@ -12,7 +12,7 @@
     (fn []
       [:div.content>div.columns.is-centered>div.column.is-two-thirds
        [:div.columns>div.column
-        [:h3 "Messages"]
+        [:h3 "Messages YAAAY mmm"]
         [messages/message-list messages]]
        [:div.columns>div.column
         [messages/reload-messages-button]]

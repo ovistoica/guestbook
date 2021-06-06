@@ -29,6 +29,7 @@
                  [metosin/ring-http-response "0.9.1"]
                  [metosin/ring-swagger-ui "2.2.10"]
                  [metosin/jsonista "0.3.3"]
+                 [com.cognitect/transit-clj "1.0.324"]
                  [mount "0.1.16"]
                  [nrepl "0.8.3"]
                  [org.clojure/clojure "1.10.1"]
@@ -42,6 +43,7 @@
                  [ring/ring-defaults "0.3.2"]
                  [reagent "1.0.0"]
                  [re-frame "1.1.2"]
+                 [org.clojure/core.async "1.2.603"]
                  [cljs-ajax "0.8.1"]
                  [org.clojure/clojurescript "1.10.764" :scope "provided"]
                  [com.google.javascript/closure-compiler-unshaded "v20200830" :scope "provided"]
@@ -58,11 +60,24 @@
 
   :source-paths ["src/clj" "src/cljc" "src/cljs"]
   :test-paths ["test/clj"]
+  :clean-targets ^{:protect false}
+  [:target-path "target/cljsbuild"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
   :main ^:skip-aot guestbook.core
+  
+  :plugins [[lein-shadow "0.2.0"]]
 
-  :plugins []
+  :shadow-cljs {:nrepl  {:port 7002}
+                :builds {:app  {:target     :browser
+                                :output-dir "target/cljsbuild/public/js"
+                                :asset-path "/js"
+                                :modules    {:app {:entries [guestbook.app]}}
+                                :dev        {:closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}}
+                                :devtools   {:preloads  [day8.re-frame-10x.preload]
+                                             :watch-dir "resources/public"}}}
+                :lein   true}
+  :npm-dev-deps [[xmlhttprequest "1.8.0"]]
 
 
   :profiles
@@ -70,22 +85,23 @@
                    :aot            :all
                    :uberjar-name   "guestbook.jar"
                    :source-paths   ["env/prod/clj" "env/prod/cljc" "env/prod/cljs"]
-                   :prep-tasks     ["compile"
-                                    ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]
+                   :prep-tasks ["compile" ["shadow" "release" "app"]]
                    :resource-paths ["env/prod/resources"]}
 
    :dev           [:project/dev :profiles/dev]
    :test          [:project/dev :project/test :profiles/test]
 
    :project/dev   {:jvm-opts       ["-Dconf=dev-config.edn"]
-                   :dependencies   [[pjstadig/humane-test-output "0.10.0"]
-                                    [prone "2020-01-17"]
-                                    [ring/ring-devel "1.8.2"]
-                                    [ring/ring-mock "0.4.0"]]
+                   :dependencies [[binaryage/devtools "1.0.2"]
+                                  [cider/piggieback "0.5.0"]
+                                  [pjstadig/humane-test-output "0.10.0"]
+                                  [prone "2020-01-17"]
+                                  [ring/ring-devel "1.8.1"]
+                                  [ring/ring-mock "0.4.0"]]
                    :plugins        [[com.jakemccrary/lein-test-refresh "0.24.1"]
                                     [jonase/eastwood "0.3.5"]]
 
-                   :source-paths   ["env/dev/clj"]
+                   :source-paths ["env/dev/clj" "env/dev/cljs" "test/cljs"]
                    :resource-paths ["env/dev/resources"]
                    :repl-options   {:init-ns user
                                     :timeout 120000}
@@ -93,6 +109,5 @@
                                     (pjstadig.humane-test-output/activate!)]}
    :project/test  {:jvm-opts       ["-Dconf=test-config.edn"]
                    :resource-paths ["env/test/resources"]}
-   :profiles/dev  {:dependencies [[binaryage/devtools "1.0.2"]]
-                   :source-paths ["env/dev/clj" "env/dev/cljc" "env/dev/cljs"]}
+   :profiles/dev  {}
    :profiles/test {}})
