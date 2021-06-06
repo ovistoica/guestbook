@@ -183,7 +183,48 @@
 
 
 (defn change-password []
-  (let [fields (r/atom {})]))
+  (let [fields (r/atom {})
+        errors (r/atom {})
+        success (r/atom {})]
+    (letfn [(password-field [id label]
+              (r/with-let [v (r/cursor fields [id])
+                           e (r/cursor errors [id])]
+                [:div.label
+                 [:label.label {:for id} label]
+
+                 [:input.input {:id id
+                                :type :password
+                                :value @v
+                                :on-change #(reset! v (.. % -target -value))}]
+                 (when-let [message @e]
+                   [:p.help.is-danger message])]))
+            (change-password! []
+                            (let [{:keys [new-password 
+                                          :confirm-password] :as params} @fields]))]
+      (fn []
+        [:<>
+         [:h3 "Change password"]
+         [password-field :old-password "Current password"]
+         [password-field :new-password "New password"]
+         [password-field :confirm-password "New password (confirm)"]
+         [:div.field
+          (when-let [message (:server @errors)]
+            [:p.message.is-danger message])
+          (when-let [message (:message @success)]
+            [:p.message.is-success message])
+          [:button.button
+           {:on-click
+            (fn [_]
+              (change-password!))}
+           "Change password"]]]))))
+
+
+
+
+
+
+
+
 
 (defn profile [_]
   (if-let [{:keys [login created_at profile]} @(rf/subscribe [:auth/user])]
