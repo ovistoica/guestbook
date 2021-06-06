@@ -18,6 +18,56 @@ A twitter like message board application to help me understand the more advanced
 - Fully costumizable profile
 - Support for comments & replies
 
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/stoica94/guestbook
+```
+
+Go to the project directory
+
+```bash
+  cd guestbook
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the repl
+
+```bash
+  lein repl
+```
+
+Call start function from `user` namespace
+
+```bash
+  user:> (start)
+```
+
+Build shadow-cljs in a separate terminal window
+
+```bash
+  npx shadow-cljs watch app
+```
+
+That's it!
+
+## API Reference
+
+All API routes are documented with swagger
+
+#### Swagger route
+
+```http
+  GET /api/swagger-ui/
+```
+
 ## Acknowledgements
 
 This project is made based on the book [Web Development in Clojure](https://pragprog.com/titles/dswdcloj3/web-development-with-clojure-third-edition/)
