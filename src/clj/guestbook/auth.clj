@@ -46,10 +46,9 @@
     (let [{hashed :password} (db/get-user-for-auth* t-conn {:login login})]
       (if (hashers/check password hashed)
         (db/delete-user!* t-conn {:login login})
-        (throw (ex-info "Password is incorrect!"
+        (throw (ex-info "Password is incorrect"
                         {:guestbook/error-id ::authentication-failure
                          :error "Password is incorrect!"}))))))
-;
 
 (defn identity->roles [identity]
   (cond-> #{:any}

@@ -3,7 +3,7 @@
    [clojure.string :as string]
    [reagent.core :as r]
    [re-frame.core :as rf]
-   [guestbook.components :refer [text-input textarea-input image]]
+   [guestbook.components :refer [textarea-input image]]
    [guestbook.validation :refer [validate-message]]))
 
 

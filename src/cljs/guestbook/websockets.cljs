@@ -13,11 +13,11 @@
             mount.core))
 
 (defstate socket
-          :start (sente/make-channel-socket!
-                   "/ws"
-                   (.-value (.getElementById js/document "token"))
-                   {:type           :auto
-                    :wrap-recv-evs? false}))
+  :start (sente/make-channel-socket!
+          "/ws"
+          (.-value (.getElementById js/document "token"))
+          {:type           :auto
+           :wrap-recv-evs? false}))
 
 ;
 (defn send! [& args]
@@ -28,16 +28,16 @@
 ;
 
 (rf/reg-fx
-  :ws/send!
-  (fn [{:keys [message timeout callback-event]
-        :or   {timeout 30000}}]
-    (if callback-event
-      (send! message timeout #(rf/dispatch (conj callback-event %)))
-      (send! message))))
+ :ws/send!
+ (fn [{:keys [message timeout callback-event]
+       :or   {timeout 30000}}]
+   (if callback-event
+     (send! message timeout #(rf/dispatch (conj callback-event %)))
+     (send! message))))
 ;
 (defmulti handle-message
-          (fn [{:keys [id]} _]
-            id))
+  (fn [{:keys [id]} _]
+    id))
 
 (defmethod handle-message :message/add
   [_ msg-add-event]
@@ -47,7 +47,7 @@
 (defmethod handle-message :message/creation-errors
   [_ [_ response]]
   (rf/dispatch
-    [:form/set-server-errors (:errors response)]))
+   [:form/set-server-errors (:errors response)]))
 
 ;; ---------------------------------------------------------------------------
 ;; Default Handlers
@@ -69,15 +69,14 @@
 ;; Router
 
 (defn receive-message!
-  [{:keys [id event] :as ws-message}]
-  (do
-    (.log js/console "Event Received: " (pr-str event))
-    (handle-message ws-message event)))
+  [{:keys [event] :as ws-message}]
+  (.log js/console "Event Received: " (pr-str event))
+  (handle-message ws-message event))
 
 (defstate channel-router
-          :start (sente/start-chsk-router!
-                   (:ch-recv @socket)
-                   #'receive-message!)
-          :stop (when-let [stop-fn @channel-router]
-                  (stop-fn)))
+  :start (sente/start-chsk-router!
+          (:ch-recv @socket)
+          #'receive-message!)
+  :stop (when-let [stop-fn @channel-router]
+          (stop-fn)))
 ;
