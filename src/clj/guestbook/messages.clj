@@ -32,3 +32,6 @@
 
 (defn messages-by-author [author]
   {:messages (vec (db/get-messages-by-author {:author author}))})
+
+(defn get-message [post-id]
+  (db/get-message {:id post-id}))

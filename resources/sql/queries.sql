@@ -21,6 +21,21 @@ SELECT
 from posts as p join users as a
 on a.login = p.author
 -- END:get-messages
+
+-- START:get-message
+-- :name get-message :? :1
+-- :doc selects a message
+SELECT
+  p.id                 as id,
+  p.timestamp          as timestamp,
+  p.message            as message,
+  p.name               as name,
+  p.author             as author,
+  a.profile->>'avatar' as avatar
+from posts as p join users as a
+on a.login = p.author
+where p.id = :id;
+-- END:get-message
 -- END:posts
 
 -- START:author
@@ -94,3 +109,4 @@ WHERE media.owner = :owner
 select * from media
 where name = :name
 -- END:media
+

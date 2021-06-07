@@ -66,6 +66,7 @@
    :account/register #{:any}
    :session/get #{:any}
    :messages/list #{:any}
+   :message/get #{:any}
    :swagger/swagger #{:any}})
 
 (comment

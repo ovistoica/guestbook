@@ -3,8 +3,10 @@
    [clojure.string :as string]
    [reagent.core :as r]
    [re-frame.core :as rf]
+   [reitit.frontend.easy :as rtfe]
    [guestbook.components :refer [textarea-input image]]
-   [guestbook.validation :refer [validate-message]]))
+   [guestbook.validation :refer [validate-message]]
+   [reagent.dom :as dom]))
 
 
 (rf/reg-event-db
@@ -141,13 +143,20 @@
                :timeout        10000
                :callback-event [:message/send!-called-back]}}))
 
-(defn message [{:keys [timestamp message name author avatar]}]
+(defn message [{:keys [timestamp message name author avatar id]}]
   [:article.media
    [:figure.media-left
     [image (or avatar "/img/avatar-default.png") 123 123]]
    [:div.media-content>div.content
     [:time (.toLocaleString timestamp)]
     [:p message]
+    [:p>a {:on-click (fn [_]
+                       (let [{{:keys [name]} :data
+                              {:keys [path query]} :parameters}
+                             @(rf/subscribe [:router/current-route])]
+                         (rtfe/replace-state name path (assoc query :post id)))
+                       (rtfe/push-state :guestbook.routes.app/post {:post id}))}
+     "View Post"]
     [:p " - " name
      " <"
      (if author
@@ -202,10 +211,25 @@
                               @(rf/subscribe [:form/fields])])
      :value    "comment"}]])
 
+(defn msg-li [m message-id]
+  (r/create-class
+   {:component-did-mount
+    (fn [this]
+      (when (= message-id (:id m))
+        (.scrollIntoView (dom/dom-node this))))
+    :reagent-render
+    (fn [_]
+      [:li
+       [message m]])}))
 
-(defn message-list [messages]
-  [:ul.messages
-   (for [m @messages]
-     ^{:key (:timestamp m)}
-     [:li
-      [message m]])])
+(defn message-list
+  ([messages]
+   [message-list messages nil])
+  ([messages message-id]
+   [:ul.messages
+    (for [m @messages]
+      ^{:key (:timestamp m)}
+      [:li
+       [msg-li m message-id]])]))
+
+

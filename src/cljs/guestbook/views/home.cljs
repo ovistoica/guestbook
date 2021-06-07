@@ -7,13 +7,13 @@
 (def home-controllers
   [{:start (fn [_] (rf/dispatch [:messages/load]))}])
 
-(defn home []
+(defn home [{{{post :post} :query} :parameters}]
   (let [messages (rf/subscribe [:messages/list])]
     (fn []
       [:div.content>div.columns.is-centered>div.column.is-two-thirds
        [:div.columns>div.column
-        [:h3 "Messages YAAAY mmm"]
-        [messages/message-list messages]]
+        [:h3 "Messages"]
+        [messages/message-list messages post]]
        [:div.columns>div.column
         [messages/reload-messages-button]]
        [:div.columns>div.column
