@@ -24,6 +24,7 @@
                  [luminus-transit "0.1.2"]
                  [luminus/ring-ttl-session "0.3.3"]
                  [markdown-clj "1.10.5"]
+                 [lein-kibit "0.1.6"]
                  [metosin/muuntaja "0.6.7"]
                  [metosin/reitit "0.5.10"]
                  [metosin/ring-http-response "0.9.1"]

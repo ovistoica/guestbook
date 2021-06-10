@@ -67,6 +67,7 @@
    :session/get #{:any}
    :messages/list #{:any}
    :message/get #{:any}
+   :message/boost! #{:authenticated}
    :swagger/swagger #{:any}})
 
 (comment

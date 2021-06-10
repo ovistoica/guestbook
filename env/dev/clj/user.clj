@@ -80,4 +80,6 @@
   (auth/create-user! "testuser" "testpass")
   (auth/authenticate-user "testurer" "testpass")
 
+  (migrate)
+
   )
