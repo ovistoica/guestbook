@@ -8,109 +8,109 @@
 ;---
 (ns guestbook.views.profile
   (:require
-   [guestbook.components :refer [text-input textarea-input image image-uploader]]
-   [reagent.core :as r]
-   [ajax.core :as ajax]
-   [guestbook.modals :as m]
-   [reitit.frontend.easy :as rtfe]
-   [re-frame.core :as rf]))
+    [guestbook.components :refer [text-input textarea-input image image-uploader]]
+    [reagent.core :as r]
+    [ajax.core :as ajax]
+    [guestbook.modals :as m]
+    [reitit.frontend.easy :as rtfe]
+    [re-frame.core :as rf]))
 
 (rf/reg-sub
- :profile/changes
- (fn [db _]
-   (get db :profile/changes)))
+  :profile/changes
+  (fn [db _]
+    (get db :profile/changes)))
 
 ;
 (rf/reg-sub
- :profile/media
- (fn [db _]
-   (get db :profile/media)))
+  :profile/media
+  (fn [db _]
+    (get db :profile/media)))
 
 (rf/reg-sub
- :profile/changed?
- :<- [:profile/changes]
- :<- [:profile/media]
- (fn [[changes media] _]
-   (not
-    (and
-     (empty? changes)
-     (empty? media)))))
+  :profile/changed?
+  :<- [:profile/changes]
+  :<- [:profile/media]
+  (fn [[changes media] _]
+    (not
+      (and
+        (empty? changes)
+        (empty? media)))))
 
 (rf/reg-sub
- :profile/field-changed?
- :<- [:profile/changes]
- :<- [:profile/media]
- (fn [[changes media] [_ k]]
-   (or
-    (contains? changes k)
-    (contains? media k))))
+  :profile/field-changed?
+  :<- [:profile/changes]
+  :<- [:profile/media]
+  (fn [[changes media] [_ k]]
+    (or
+      (contains? changes k)
+      (contains? media k))))
 
 (rf/reg-sub
- :profile/field
- :<- [:profile/changes]
- :<- [:auth/user]
- :<- [:profile/media]
- (fn [[changes {:keys [profile]} media] [_ k default]]
-   (or
-    (when-let [file (get media k)] (js/URL.createObjectURL file))
-    (get changes k)
-    (get profile k)
-    default)))
+  :profile/field
+  :<- [:profile/changes]
+  :<- [:auth/user]
+  :<- [:profile/media]
+  (fn [[changes {:keys [profile]} media] [_ k default]]
+    (or
+      (when-let [file (get media k)] (js/URL.createObjectURL file))
+      (get changes k)
+      (get profile k)
+      default)))
 
 (rf/reg-event-db
- :profile/save-media
- (fn [db [_ k v]]
-   (update db
-           :profile/media
-           (if (nil? v)
-             #(dissoc % k)
-             #(assoc % k v)))))
+  :profile/save-media
+  (fn [db [_ k v]]
+    (update db
+            :profile/media
+            (if (nil? v)
+              #(dissoc % k)
+              #(assoc % k v)))))
 ;
 
 (rf/reg-sub
- :profile/profile
- :<- [:profile/changes]
- :<- [:auth/user]
- (fn [[changes {:keys [profile]}] _]
-   (merge
-    profile
-    changes)))
+  :profile/profile
+  :<- [:profile/changes]
+  :<- [:auth/user]
+  (fn [[changes {:keys [profile]}] _]
+    (merge
+      profile
+      changes)))
 
 (rf/reg-event-db
- :profile/save-change
- (fn [db [_ k v]]
-   (update db
-           :profile/changes
-           (if (nil? v)
-             #(dissoc % k)
-             #(assoc % k v)))))
+  :profile/save-change
+  (fn [db [_ k v]]
+    (update db
+            :profile/changes
+            (if (nil? v)
+              #(dissoc % k)
+              #(assoc % k v)))))
 
 ;
 (rf/reg-event-fx
- :profile/set-profile
- (fn [_ [_ profile files]]
-   (if (some some? (vals files))
-     {:ajax/upload-media!
-      {:url     "/api/my-account/media/upload"
-       :files   files
-       :handler (fn [response]
-                  (rf/dispatch
-                   [:profile/set-profile
-                    (merge profile
-                           (select-keys response (:files-uploaded response)))]))}}
-     {:ajax/post
-      {:url           "/api/my-account/set-profile"
-       :params        {:profile profile}
-       :success-event [:profile/handle-set-profile profile]}})))
+  :profile/set-profile
+  (fn [_ [_ profile files]]
+    (if (some some? (vals files))
+      {:ajax/upload-media!
+       {:url     "/api/my-account/media/upload"
+        :files   files
+        :handler (fn [response]
+                   (rf/dispatch
+                     [:profile/set-profile
+                      (merge profile
+                             (select-keys response (:files-uploaded response)))]))}}
+      {:ajax/post
+       {:url           "/api/my-account/set-profile"
+        :params        {:profile profile}
+        :success-event [:profile/handle-set-profile profile]}})))
 
 (rf/reg-event-db
- :profile/handle-set-profile
- (fn [db [_ profile]]
-   (-> db
-       (assoc-in [:auth/user :profile] profile)
-       (dissoc
-        :profile/media
-        :profile/changes))))
+  :profile/handle-set-profile
+  (fn [db [_ profile]]
+    (-> db
+        (assoc-in [:auth/user :profile] profile)
+        (dissoc
+          :profile/media
+          :profile/changes))))
 ;
 
 (defn display-name []
@@ -189,62 +189,61 @@
   (let [fields (r/atom {})
         errors (r/atom {})
         success (r/atom {})]
-    (letfn
-     [;
-      (password-field [id label]
-        (r/with-let [v (r/cursor fields [id])
-                     e (r/cursor errors [id])]
-          [:div.field
-           [:label.label {:for id} label]
-           [:input.input {:id id
-                          :type :password
-                          :value @v
-                          :on-change #(reset! v (.. % -target -value))}]
-           (when-let [message @e]
-             [:p.help.is-danger message])]))
-            ;
-            ;
-      (change-password! []
-        (let [{:keys [new-password
-                      confirm-password]
-               :as params} @fields]
-          (if (not= new-password confirm-password)
-            (reset! errors
-                    {:new-password     "New Password and Confirm must match!"
-                     :confirm-password "New Password and Confirm must match!"})
-            (ajax/POST "/api/my-account/change-password"
-              {:params params
-               :handler
-               (fn [_]
-                     ;; Display success message for 5 seconds
-                 (swap! success
-                        (fn [{:keys
-                              [timeout]}]
-                          (when timeout
-                            (js/clearTimeout timeout))
-                          {:message "Password change successful!"
-                           :timeout (js/setTimeout
-                                     (fn []
-                                       (reset! success {}))
-                                     5000)}))
-                 (reset! fields {})
-                 (reset! errors {}))
-               :error-handler
-               (fn [{r :response}]
-                 (println r)
-                 (reset!
-                  errors
-                  (case (:error r)
-                    :incorrect-password
-                    {:old-password (:message r)}
+    (letfn [
+       (password-field [id label]
+         (r/with-let [v (r/cursor fields [id])
+                      e (r/cursor errors [id])]
+           [:div.field
+            [:label.label {:for id} label]
+            [:input.input {:id        id
+                           :type      :password
+                           :value     @v
+                           :on-change #(reset! v (.. % -target -value))}]
+            (when-let [message @e]
+              [:p.help.is-danger message])]))
+       ;
+       ;
+       (change-password! []
+         (let [{:keys [new-password
+                       confirm-password]
+                :as   params} @fields]
+           (if (not= new-password confirm-password)
+             (reset! errors
+                     {:new-password     "New Password and Confirm must match!"
+                      :confirm-password "New Password and Confirm must match!"})
+             (ajax/POST "/api/my-account/change-password"
+                        {:params params
+                         :handler
+                         (fn [_]
+                           ;; Display success message for 5 seconds
+                           (swap! success
+                                  (fn [{:keys
+                                        [timeout]}]
+                                    (when timeout
+                                      (js/clearTimeout timeout))
+                                    {:message "Password change successful!"
+                                     :timeout (js/setTimeout
+                                                (fn []
+                                                  (reset! success {}))
+                                                5000)}))
+                           (reset! fields {})
+                           (reset! errors {}))
+                         :error-handler
+                         (fn [{r :response}]
+                           (println r)
+                           (reset!
+                             errors
+                             (case (:error r)
+                               :incorrect-password
+                               {:old-password (:message r)}
 
-                    :mismatch
-                    {:new-password     (:message r)
-                     :confirm-password (:message r)}
+                               :mismatch
+                               {:new-password     (:message r)
+                                :confirm-password (:message r)}
 
-                        ;; ELSE
-                    {:server
-                     "Unknown Server Error. Please try again!"})))}))))]
+                               ;; ELSE
+                               {:server
+                                "Unknown Server Error. Please try again!"})))}))))]
       (fn []
         [:<>
          [:h3 "Change Password"]
@@ -290,23 +289,23 @@
        [:div.field.is-horizontal
         [:div.field-label.is-normal>label.label {:for :login} "Login"]
         [:div.field-body>input.input
-         {:id :login
+         {:id           :login
           :autocomplete false
-          :value @login
-          :on-change #(reset! login (.. % -target -value))
-          :disabled (:loading @status)
-          :type :text}]]
+          :value        @login
+          :on-change    #(reset! login (.. % -target -value))
+          :disabled     (:loading @status)
+          :type         :text}]]
        [:div.field.is-horizontal
         [:div.field-label.is-normal>label.label {:for :password} "Password"]
         [:div.field-body>input.input
-         {:id :password
-          :value @password
-          :disabled (:loading @status)
-          :on-change #(reset! password (.. % -target -value))
-          :type :password
+         {:id           :password
+          :value        @password
+          :disabled     (:loading @status)
+          :on-change    #(reset! password (.. % -target -value))
+          :type         :password
           :autocomplete false}]]]
 
-          ;; Modal Footer
+      ;; Modal Footer
       [:div.field.is-grouped
        [:p.control>button.button.is-light
         {:disabled (:loading @status)
@@ -325,20 +324,20 @@
              (do
                (reset! status {:loading true})
                (ajax/POST "/api/my-account/delete-account"
-                 {:params @fields
-                  :handler
-                  (fn [_]
-                    (reset! status {})
-                    (reset! fields {})
-                    (rf/dispatch [:app/hide-modal ::delete-account])
-                    (rf/dispatch [:auth/handle-logout])
-                    (rtfe/push-state :guestbook.routes.app/home))
-                  :error-handler
-                  (fn [{r :response}]
-                    (if (= (:error r) :incorrect-password)
-                      (reset! status {:error
-                                      "Incorrect passwrod, please try again."})
-                      (reset! status {:error "Unknown Error Occured."})))}))))}
+                          {:params @fields
+                           :handler
+                           (fn [_]
+                             (reset! status {})
+                             (reset! fields {})
+                             (rf/dispatch [:app/hide-modal ::delete-account])
+                             (rf/dispatch [:auth/handle-logout])
+                             (rtfe/push-state :guestbook.routes.app/home))
+                           :error-handler
+                           (fn [{r :response}]
+                             (if (= (:error r) :incorrect-password)
+                               (reset! status {:error
+                                               "Incorrect passwrod, please try again."})
+                               (reset! status {:error "Unknown Error Occured."})))}))))}
         "Delete Account"]]]]))
 
 

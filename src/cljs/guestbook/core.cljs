@@ -22,7 +22,7 @@
     [guestbook.auth :as auth]
     [guestbook.ajax :as ajax]
     [guestbook.websockets :as ws]
-   [guestbook.views.post :as post]
+    [guestbook.views.post :as post]
     [guestbook.routes.app :refer [app-routes]]
     [reitit.frontend.controllers :as rtfc]))
 
